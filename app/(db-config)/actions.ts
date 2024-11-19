@@ -25,10 +25,7 @@ export interface DbConfigActionState {
   status: 'idle' | 'in_progress' | 'success' | 'failed' | 'invalid_data';
 }
 
-export const authenticate = async (
-  _: DbConfigActionState,
-  formData: FormData
-): Promise<DbConfigActionState> => {
+export const authenticate = async (formData: FormData): Promise<void> => {
   try {
     const validatedData = dbConfigFormSchema.parse({
       host: formData.get('host'),
@@ -47,15 +44,9 @@ export const authenticate = async (
     );
 
     await externalDb.authenticateConnection();
-    return { status: 'success' };
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error('authenticate error:', error);
-      return { status: 'invalid_data' };
-    }
     console.error('authenticate error:', error);
-
-    return { status: 'invalid_data' };
+    throw error;
   }
 };
 
@@ -84,7 +75,7 @@ export const register = async (
       password: formData.get('password'),
     });
 
-    await authenticate({ status: 'idle' }, formData);
+    await authenticate(formData);
 
     const session = await auth();
 
