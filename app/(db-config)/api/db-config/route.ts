@@ -13,12 +13,9 @@ export async function GET() {
     externalDBConfig = await getExternalDBConfig(session.user.id);
   } catch (err) {
     console.error('error in getting config:', err);
-    return;
+    return new Response('No config found', { status: 404 });
   }
 
-  if (externalDBConfig) {
-    return externalDBConfig;
-  }
   return new Response('Success', { status: 200 });
 }
 
