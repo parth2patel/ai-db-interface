@@ -3,30 +3,23 @@
 import { Message } from 'ai';
 import cx from 'classnames';
 import { motion } from 'framer-motion';
-import { Dispatch, SetStateAction } from 'react';
 
 import { Vote } from '@/db/schema';
 
-import { UIBlock } from './block';
 import { DocumentToolCall, DocumentToolResult } from './document';
 import { SparklesIcon } from './icons';
 import { Markdown } from './markdown';
 import { MessageActions } from './message-actions';
 import { PreviewAttachment } from './preview-attachment';
-import { Weather } from './weather';
 
 export const PreviewMessage = ({
   chatId,
   message,
-  block,
-  setBlock,
   vote,
   isLoading,
 }: {
   chatId: string;
   message: Message;
-  block: UIBlock;
-  setBlock: Dispatch<SetStateAction<UIBlock>>;
   vote: Vote | undefined;
   isLoading: boolean;
 }) => {
@@ -65,28 +58,14 @@ export const PreviewMessage = ({
 
                   return (
                     <div key={toolCallId}>
-                      {toolName === 'getWeather' ? (
-                        <Weather weatherAtLocation={result} />
-                      ) : toolName === 'createDocument' ? (
-                        <DocumentToolResult
-                          type="create"
-                          result={result}
-                          block={block}
-                          setBlock={setBlock}
-                        />
+                      {toolName === 'createDocument' ? (
+                        <DocumentToolResult type="create" result={result} />
                       ) : toolName === 'updateDocument' ? (
-                        <DocumentToolResult
-                          type="update"
-                          result={result}
-                          block={block}
-                          setBlock={setBlock}
-                        />
+                        <DocumentToolResult type="update" result={result} />
                       ) : toolName === 'requestSuggestions' ? (
                         <DocumentToolResult
                           type="request-suggestions"
                           result={result}
-                          block={block}
-                          setBlock={setBlock}
                         />
                       ) : (
                         <pre>{JSON.stringify(result, null, 2)}</pre>
@@ -98,12 +77,10 @@ export const PreviewMessage = ({
                     <div
                       key={toolCallId}
                       className={cx({
-                        skeleton: ['getWeather'].includes(toolName),
+                        skeleton: ['runSQLQuery'].includes(toolName),
                       })}
                     >
-                      {toolName === 'getWeather' ? (
-                        <Weather />
-                      ) : toolName === 'createDocument' ? (
+                      {toolName === 'createDocument' ? (
                         <DocumentToolCall type="create" args={args} />
                       ) : toolName === 'updateDocument' ? (
                         <DocumentToolCall type="update" args={args} />

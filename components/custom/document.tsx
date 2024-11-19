@@ -1,6 +1,3 @@
-import { SetStateAction } from 'react';
-
-import { UIBlock } from './block';
 import { FileIcon, LoaderIcon, MessageIcon, PencilEditIcon } from './icons';
 
 const getActionText = (type: 'create' | 'update' | 'request-suggestions') => {
@@ -19,16 +16,9 @@ const getActionText = (type: 'create' | 'update' | 'request-suggestions') => {
 interface DocumentToolResultProps {
   type: 'create' | 'update' | 'request-suggestions';
   result: any;
-  block: UIBlock;
-  setBlock: (value: SetStateAction<UIBlock>) => void;
 }
 
-export function DocumentToolResult({
-  type,
-  result,
-  block,
-  setBlock,
-}: DocumentToolResultProps) {
+export function DocumentToolResult({ type, result }: DocumentToolResultProps) {
   return (
     <div
       className="bg-background cursor-pointer border py-2 px-3 rounded-xl w-fit flex flex-row gap-3 items-start"
@@ -41,15 +31,6 @@ export function DocumentToolResult({
           width: rect.width,
           height: rect.height,
         };
-
-        setBlock({
-          documentId: result.id,
-          content: '',
-          title: result.title,
-          isVisible: true,
-          status: 'idle',
-          boundingBox,
-        });
       }}
     >
       <div className="text-muted-foreground mt-1">

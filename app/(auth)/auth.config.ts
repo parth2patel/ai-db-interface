@@ -30,7 +30,9 @@ export const authConfig = {
       }
 
       if (isLoggedIn) {
-        return Response.redirect(new URL('/', nextUrl as unknown as URL));
+        return Response.redirect(
+          new URL('/db-config', nextUrl as unknown as URL)
+        );
       }
 
       return true;
