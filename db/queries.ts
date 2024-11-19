@@ -5,6 +5,8 @@ import { and, asc, desc, eq, gt } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
+import { generateUUID } from '@/lib/utils';
+
 import {
   user,
   chat,
@@ -15,6 +17,10 @@ import {
   Message,
   message,
   vote,
+  externalDBConfig,
+  ExternalDBConfig,
+  DefaultDBConfig,
+  defaultDBConfig,
 } from './schema';
 
 // Optionally, if not using email/pass login, you can
@@ -40,6 +46,99 @@ export async function createUser(email: string, password: string) {
     return await db.insert(user).values({ email, password: hash });
   } catch (error) {
     console.error('Failed to create user in database');
+    throw error;
+  }
+}
+
+export async function createExternalDBConfig({
+  userId,
+  dbName,
+  dbUserName,
+  host,
+  port,
+  password,
+}: {
+  userId: string;
+  dbName: string;
+  dbUserName: string;
+  host: string;
+  port: string;
+  password: string;
+}) {
+  const id = generateUUID();
+  try {
+    return await db.insert(externalDBConfig).values({
+      id,
+      userId,
+      dbName,
+      dbUserName,
+      host,
+      port: Number(port),
+      password,
+    });
+  } catch (error) {
+    console.error('Failed to create externalDBConfig in database');
+    throw error;
+  }
+}
+
+export async function updateExternalDBConfig({
+  id,
+  userId,
+  dbName,
+  dbUserName,
+  host,
+  port,
+  password,
+}: {
+  id: string;
+  userId: string;
+  dbName: string;
+  dbUserName: string;
+  host: string;
+  port: string;
+  password: string;
+}) {
+  try {
+    return await db
+      .update(externalDBConfig)
+      .set({
+        userId,
+        dbName,
+        dbUserName,
+        host,
+        port: Number(port),
+        password,
+      })
+      .where(eq(externalDBConfig.id, id));
+  } catch (error) {
+    console.error('Failed to update externalDBConfig in database');
+    throw error;
+  }
+}
+
+export async function getExternalDBConfig(
+  userId: string
+): Promise<Array<ExternalDBConfig>> {
+  try {
+    return await db
+      .select()
+      .from(externalDBConfig)
+      .where(eq(externalDBConfig.userId, userId));
+  } catch (error) {
+    console.error('Failed to get externalDBConfig from database');
+    throw error;
+  }
+}
+
+export async function getDefaultDBConfig(): Promise<DefaultDBConfig> {
+  try {
+    return await db
+      .select()
+      .from(defaultDBConfig)
+      .then((res) => res?.[0]);
+  } catch (error) {
+    console.error('Failed to get defaultDBConfig from database');
     throw error;
   }
 }

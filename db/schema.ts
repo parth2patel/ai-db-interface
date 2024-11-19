@@ -9,6 +9,7 @@ import {
   primaryKey,
   foreignKey,
   boolean,
+  integer,
 } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('User', {
@@ -18,6 +19,31 @@ export const user = pgTable('User', {
 });
 
 export type User = InferSelectModel<typeof user>;
+
+export const defaultDBConfig = pgTable('DefaultDBConfig', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  host: varchar('host', { length: 128 }).notNull(),
+  dbName: varchar('dbName', { length: 64 }).notNull(),
+  dbUserName: varchar('dbUserName', { length: 64 }).notNull(),
+  port: integer('port').notNull(),
+  password: varchar('password', { length: 64 }),
+});
+
+export type DefaultDBConfig = InferSelectModel<typeof defaultDBConfig>;
+
+export const externalDBConfig = pgTable('ExternalDBConfig', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  host: varchar('host', { length: 128 }).notNull(),
+  dbName: varchar('dbName', { length: 64 }).notNull(),
+  dbUserName: varchar('dbUserName', { length: 64 }).notNull(),
+  port: integer('port').notNull(),
+  password: varchar('password', { length: 64 }),
+  userId: uuid('userId')
+    .notNull()
+    .references(() => user.id),
+});
+
+export type ExternalDBConfig = InferSelectModel<typeof externalDBConfig>;
 
 export const chat = pgTable('Chat', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
