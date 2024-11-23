@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import Link from 'next/link';
 
-import { MessageIcon, VercelIcon } from './icons';
+import { MessageIcon } from './icons';
 
 export const Overview = () => {
   return (
@@ -15,36 +16,27 @@ export const Overview = () => {
     >
       <div className="rounded-xl p-6 flex flex-col gap-8 leading-relaxed text-center max-w-xl">
         <p className="flex flex-row justify-center gap-4 items-center">
-          <VercelIcon size={32} />
+          <Image src="/images/db.png" alt="db icon" width={34} height={34} />
           <span>+</span>
           <MessageIcon size={32} />
         </p>
+        <h1>Welcome to the AI-Powered Database Chatbot!</h1>
         <p>
           This is an{' '}
           <Link
             className="font-medium underline underline-offset-4"
-            href="https://github.com/vercel/ai-chatbot"
+            href="https://github.com/parth2patel/ai-db-interface"
             target="_blank"
           >
             open source
           </Link>{' '}
-          chatbot template built with Next.js and the AI SDK by Vercel. It uses
-          the{' '}
-          <code className="rounded-md bg-muted px-1 py-0.5">streamText</code>{' '}
-          function in the server and the{' '}
-          <code className="rounded-md bg-muted px-1 py-0.5">useChat</code> hook
-          on the client to create a seamless chat experience.
+          platform lets you interact with your database using natural language.
+          it transforms your prompts into SQL queries, executes them on your
+          database, and displays the results in a seamless chat interface.
         </p>
         <p>
-          You can learn more about the AI SDK by visiting the{' '}
-          <Link
-            className="font-medium underline underline-offset-4"
-            href="https://sdk.vercel.ai/docs"
-            target="_blank"
-          >
-            docs
-          </Link>
-          .
+          Whether you are a developer, analyst, or tech enthusiast, this tool
+          makes querying databases as simple as having a conversation.
         </p>
       </div>
     </motion.div>
