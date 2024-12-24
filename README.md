@@ -7,13 +7,13 @@
 </p>
 
 <p align="center">
-  <a href="#🚀-key-features"><strong>Key Features</strong></a> ·
-  <a href="#💻-additional-features"><strong>Additional Features</strong></a> ·
-  <a href="#🎯-use-cases"><strong>Use Cases</strong></a> ·
-  <a href="#🔧-technology-stack"><strong>Technology Stack</strong></a> ·
-  <a href="#🔧-installation"><strong>Installation</strong></a> ·
-  <a href="#🌟-contribution"><strong>Contribution</strong></a> ·
-  <a href="#🧩-roadmap"><strong>Roadmap</strong></a>
+  <a href="#key-features"><strong>Key Features</strong></a> ·
+  <a href="#additional-features"><strong>Additional Features</strong></a> ·
+  <a href="#use-cases"><strong>Use Cases</strong></a> ·
+  <a href="#technology-stack"><strong>Technology Stack</strong></a> ·
+  <a href="#installation"><strong>Installation</strong></a> ·
+  <a href="#contribution"><strong>Contribution</strong></a> ·
+  <a href="#roadmap"><strong>Roadmap</strong></a>
 </p>
 <br/>
 
@@ -21,14 +21,14 @@
 
 Transform the way you interact with databases!
 
-## 🚀 Key Features
+## 🚀 Key Features <a id="key-features"></a>
 
 - **Natural Language to SQL**: Enter questions like "What are the top 5 most recent orders?" and get accurate SQL queries instantly.
 - **Database-Agnostic**: Works seamlessly with PostgreSQL, MySQL, and more.
 - **Secure by Design**: Your database credentials remain secure with no unnecessary exposure.
 - **Open-Source**: Contribute, tweak, or deploy your own version with ease.
 
-## 💻 Additional Features
+## 💻 Additional Features <a id="additional-features"></a>
 
 - [Next.js](https://nextjs.org) App Router
   - Advanced routing for seamless navigation and performance
@@ -46,20 +46,20 @@ Transform the way you interact with databases!
 - [NextAuth.js](https://github.com/nextauthjs/next-auth)
   - Simple and secure authentication
 
-## 🎯 Use Cases
+## 🎯 Use Cases <a id="use-cases"></a>
 
 - **For Non-Tech Users**: Empower analysts, marketers, and non-developers to query databases independently.
 - **For Developers**: Quickly prototype queries or integrate dbchats.com into your workflow.
 - **For Education**: Teach SQL concepts interactively by converting natural language into queries.
 
-## 🔧 Technology Stack
+## 🔧 Technology Stack <a id="technology-stack"></a>
 
 - **Backend**: Node.js + OpenAI API for generating SQL queries.
 - **Frontend**: React.js for a clean, interactive UI.
 - **Database**: PostgreSQL (configurable for other databases).
 - **Hosting**: Vercel (Free tier supported).
 
-## 🔧 Installation
+## 🔧 Installation <a id="installation"></a>
 
 You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
 
@@ -74,7 +74,7 @@ pnpm dev
 
 Access the app at [http://localhost:3000](http://localhost:3000).
 
-## 🌟 Contribution
+## 🌟 Contribution <a id="contribution"></a>
 
 We ❤️ contributions! If you want to improve dbchats.com, follow these steps:
 
@@ -93,7 +93,7 @@ We ❤️ contributions! If you want to improve dbchats.com, follow these steps:
    ```
 5. Open a Pull Request.
 
-## 🧩 Roadmap
+## 🧩 Roadmap <a id="roadmap"></a>
 
 - Add support for more databases (e.g., MongoDB).
 - Add SSL support for all databases.
