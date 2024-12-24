@@ -7,18 +7,17 @@
 </p>
 
 <p align="center">
-  <a href="#key-features"><strong>Key Features</strong></a> ·
-  <a href="#additional-features"><strong>Additional Features</strong></a> ·
-  <a href="#use-cases"><strong>Use Cases</strong></a> ·
-  <a href="#technology-stack"><strong>Technology Stack</strong></a> ·
-  <a href="#installation"><strong>Installation</strong></a> ·
-  <a href="#contribution"><strong>Contribution</strong></a> ·
-  <a href="#roadmap"><strong>Roadmap</strong></a> ·
-
+  <a href="#🚀-key-features"><strong>Key Features</strong></a> ·
+  <a href="#💻-additional-features"><strong>Additional Features</strong></a> ·
+  <a href="#🎯-use-cases"><strong>Use Cases</strong></a> ·
+  <a href="#🔧-technology-stack"><strong>Technology Stack</strong></a> ·
+  <a href="#🔧-installation"><strong>Installation</strong></a> ·
+  <a href="#🌟-contribution"><strong>Contribution</strong></a> ·
+  <a href="#🧩-roadmap"><strong>Roadmap</strong></a>
 </p>
 <br/>
 
-# dbchats.com ✨
+# ✨ dbchats.com
 
 Transform the way you interact with databases!
 
