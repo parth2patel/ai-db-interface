@@ -38,9 +38,9 @@ export const authenticate = async (formData: FormData): Promise<void> => {
     const externalDb = new ExternalDB(
       validatedData.host,
       validatedData.dbName,
-      validatedData.password,
       validatedData.port,
-      validatedData.dbUserName
+      validatedData.dbUserName,
+      validatedData.password
     );
 
     await externalDb.authenticateConnection();
@@ -120,6 +120,7 @@ export const register = async (
 };
 
 export const getExternalDbClient = async (): Promise<PoolClient> => {
+  let externalDbClient;
   try {
     const session = await auth();
 
@@ -139,14 +140,16 @@ export const getExternalDbClient = async (): Promise<PoolClient> => {
       externalDbConfig.password
     );
 
-    return await externalDb.getConnection();
+    externalDbClient = await externalDb.getConnection();
   } catch (error) {
     console.error('getExternalDbClient.error:', error);
     throw error;
   }
+  return externalDbClient;
 };
 
 export const getDefaultDbClient = async (): Promise<PoolClient> => {
+  let defaultDbClient;
   try {
     const defaultDbConfig = await getDefaultDBConfig();
 
@@ -158,57 +161,62 @@ export const getDefaultDbClient = async (): Promise<PoolClient> => {
       defaultDbConfig.password
     );
 
-    return await defaultDb.getConnection();
+    defaultDbClient = await defaultDb.getConnection();
   } catch (error) {
     console.error('getDefaultDbClient.error:', error);
     throw error;
   }
+  return defaultDbClient;
 };
 
 export const getDbClient = async (): Promise<PoolClient> => {
+  let dbClient;
   try {
-    let dbClient;
-
-    try {
-      dbClient = await getExternalDbClient();
-    } catch (err) {
-      console.error('error in getting external db client:', err);
-    }
-
-    if (dbClient) {
-      return dbClient;
-    }
-
-    try {
-      dbClient = await getDefaultDbClient();
-    } catch (err) {
-      console.error('error in getting default db client:', err);
-      throw err;
-    }
-    return dbClient;
-  } catch (error) {
-    throw error;
+    dbClient = await getExternalDbClient();
+  } catch (err) {
+    console.error('error in getting external db client:', err);
   }
+
+  if (dbClient) {
+    return dbClient;
+  }
+
+  try {
+    dbClient = await getDefaultDbClient();
+  } catch (err) {
+    console.error('error in getting default db client:', err);
+    throw err;
+  }
+  return dbClient;
 };
 
-export const getDbSchema = async (client: PoolClient): Promise<any[]> => {
-  try {
-    // Retrieve schema info
-    const schemaQuery = `
-        SELECT table_schema, table_name, column_name, data_type
-        FROM information_schema.columns
-        WHERE table_schema = 'public'
-        ORDER BY table_schema, table_name;
-      `;
+export const getDbSchema = async (
+  client: PoolClient
+): Promise<Record<string, any[]>> => {
+  const schema: Record<string, any[]> = {};
 
-    const schema = await client.query(schemaQuery);
-    return schema.rows;
+  try {
+    const schemaQuery = `
+      SELECT table_name, column_name, data_type
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+      ORDER BY table_name, ordinal_position;
+    `;
+
+    const result = await client.query(schemaQuery);
+    for (const row of result.rows) {
+      if (!schema[row.table_name]) {
+        schema[row.table_name] = [];
+      }
+      schema[row.table_name].push({
+        column: row.column_name,
+        type: row.data_type,
+      });
+    }
   } catch (error) {
     console.error('Error fetching schema:', error);
     throw error;
-  } finally {
-    if (client) {
-      client.release();
-    }
   }
+
+  return schema;
 };

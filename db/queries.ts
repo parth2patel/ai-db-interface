@@ -30,24 +30,27 @@ let client = postgres(`${process.env.POSTGRES_URL!}?sslmode=require`);
 let db = drizzle(client);
 
 export async function getUser(email: string): Promise<Array<User>> {
+  let fetchedUser;
   try {
-    return await db.select().from(user).where(eq(user.email, email));
+    fetchedUser = await db.select().from(user).where(eq(user.email, email));
   } catch (error) {
     console.error('Failed to get user from database');
     throw error;
   }
+  return fetchedUser;
 }
 
 export async function createUser(email: string, password: string) {
   let salt = genSaltSync(10);
   let hash = hashSync(password, salt);
-
+  let savedUser;
   try {
-    return await db.insert(user).values({ email, password: hash });
+    savedUser = await db.insert(user).values({ email, password: hash });
   } catch (error) {
     console.error('Failed to create user in database');
     throw error;
   }
+  return savedUser;
 }
 
 export async function createExternalDBConfig({
@@ -66,8 +69,9 @@ export async function createExternalDBConfig({
   password: string;
 }) {
   const id = generateUUID();
+  let externalConfig;
   try {
-    return await db.insert(externalDBConfig).values({
+    externalConfig = await db.insert(externalDBConfig).values({
       id,
       userId,
       dbName,
@@ -80,6 +84,7 @@ export async function createExternalDBConfig({
     console.error('Failed to create externalDBConfig in database');
     throw error;
   }
+  return externalConfig;
 }
 
 export async function updateExternalDBConfig({
@@ -99,8 +104,9 @@ export async function updateExternalDBConfig({
   port: string;
   password: string;
 }) {
+  let externalConfig;
   try {
-    return await db
+    externalConfig = await db
       .update(externalDBConfig)
       .set({
         userId,
@@ -115,13 +121,15 @@ export async function updateExternalDBConfig({
     console.error('Failed to update externalDBConfig in database');
     throw error;
   }
+  return externalConfig;
 }
 
 export async function getExternalDBConfig(
   userId: string
 ): Promise<Array<ExternalDBConfig>> {
+  let externalConfig;
   try {
-    return await db
+    externalConfig = await db
       .select()
       .from(externalDBConfig)
       .where(eq(externalDBConfig.userId, userId));
@@ -129,11 +137,13 @@ export async function getExternalDBConfig(
     console.error('Failed to get externalDBConfig from database');
     throw error;
   }
+  return externalConfig;
 }
 
 export async function getDefaultDBConfig(): Promise<DefaultDBConfig> {
+  let defaultConfig;
   try {
-    return await db
+    defaultConfig = await db
       .select()
       .from(defaultDBConfig)
       .then((res) => res?.[0]);
@@ -141,6 +151,7 @@ export async function getDefaultDBConfig(): Promise<DefaultDBConfig> {
     console.error('Failed to get defaultDBConfig from database');
     throw error;
   }
+  return defaultConfig;
 }
 
 export async function saveChat({
@@ -152,8 +163,9 @@ export async function saveChat({
   userId: string;
   title: string;
 }) {
+  let savedChat;
   try {
-    return await db.insert(chat).values({
+    savedChat = await db.insert(chat).values({
       id,
       createdAt: new Date(),
       userId,
@@ -163,23 +175,27 @@ export async function saveChat({
     console.error('Failed to save chat in database');
     throw error;
   }
+  return savedChat;
 }
 
 export async function deleteChatById({ id }: { id: string }) {
+  let deletedChat;
   try {
     await db.delete(vote).where(eq(vote.chatId, id));
     await db.delete(message).where(eq(message.chatId, id));
 
-    return await db.delete(chat).where(eq(chat.id, id));
+    deletedChat = await db.delete(chat).where(eq(chat.id, id));
   } catch (error) {
     console.error('Failed to delete chat by id from database');
     throw error;
   }
+  return deletedChat;
 }
 
 export async function getChatsByUserId({ id }: { id: string }) {
+  let chats;
   try {
-    return await db
+    chats = await db
       .select()
       .from(chat)
       .where(eq(chat.userId, id))
@@ -188,6 +204,7 @@ export async function getChatsByUserId({ id }: { id: string }) {
     console.error('Failed to get chats by user from database');
     throw error;
   }
+  return chats;
 }
 
 export async function getChatById({ id }: { id: string }) {
