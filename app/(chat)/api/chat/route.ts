@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { customModel } from '@/ai';
 import { models } from '@/ai/models';
-import { systemPrompt } from '@/ai/prompts';
+import { buildSystemPrompt } from '@/ai/prompts';
 import { auth } from '@/app/(auth)/auth';
 import { getDbClient, getDbSchema } from '@/app/(db-config)/actions';
 import {
@@ -12,6 +12,7 @@ import {
   saveChat,
   saveMessages,
 } from '@/db/queries';
+import { InMemoryDB } from '@/in-memory-db/db';
 import {
   generateUUID,
   getMostRecentUserMessage,
@@ -80,9 +81,35 @@ export async function POST(request: Request) {
 
   const streamingData = new StreamData();
 
+  let client;
+  try {
+    client = await getDbClient();
+  } catch (err) {
+    console.error('error in connecting to default db:', err);
+    return new Response('Unable to connect to database client', {
+      status: 500,
+    });
+  }
+
+  const db: InMemoryDB = InMemoryDB.getInstance();
+  let cachedData = db.get(session.user.id);
+
+  if (!cachedData) {
+    console.log('cache miss');
+    let schemaInfo;
+    try {
+      schemaInfo = await getDbSchema(client);
+    } catch (schemaError) {
+      console.error('Error fetching schema info:', schemaError);
+      return new Response('Unable to get database schema', { status: 500 });
+    }
+    db.set(session.user.id, schemaInfo);
+    cachedData = schemaInfo;
+  }
+
   const result = await streamText({
     model: customModel(model.apiIdentifier),
-    system: systemPrompt,
+    system: buildSystemPrompt(JSON.stringify(cachedData, null, 2)),
     messages: coreMessages,
     maxSteps: 5,
     experimental_activeTools: allTools,
@@ -94,26 +121,10 @@ export async function POST(request: Request) {
         }),
         execute: async ({ prompt }) => {
           // Prompt ChatGPT to generate a SQL query based on user input
-          let schemaInfo, client;
-
-          try {
-            client = await getDbClient();
-          } catch (err) {
-            console.error('error in connecting to default db:', err);
-            return err;
-          }
-
-          try {
-            schemaInfo = await getDbSchema(client);
-          } catch (schemaError) {
-            console.error('Error fetching schema info:', schemaError);
-            return { error: 'Failed to retrieve database schema' };
-          }
 
           const { fullStream } = await streamText({
             model: customModel(model.apiIdentifier),
-            system: `You are an AI assistant that converts natural language queries to SQL. Use the following database schema to generate precise SQL queries:
-          ${JSON.stringify(schemaInfo, null, 2)} Return only the SQL query with no additional explanations. Do not include any markdown syntax or backticks around the SQL query.`,
+            system: `You are an AI assistant that converts natural language queries to SQL. Use the database schema to generate precise SQL queries. Return only the SQL query with no additional explanations. Do not include any markdown syntax or backticks around the SQL query.`,
             messages: [{ role: 'user', content: prompt }],
           });
 
@@ -134,6 +145,8 @@ export async function POST(request: Request) {
 
           const sqlQuery = draftText.replace(/```/g, '').trim();
 
+          console.log('Generated SQL Query:', sqlQuery);
+
           if (!sqlQuery) {
             return { error: 'Failed to generate SQL query' };
           }
@@ -145,7 +158,10 @@ export async function POST(request: Request) {
             queryResult = await client.query(sqlQuery);
           } catch (err) {
             console.error('error:', err);
+            client.release();
             return err;
+          } finally {
+            client.release();
           }
           return queryResult?.rows ? queryResult.rows : 'error';
         },

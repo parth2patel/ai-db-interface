@@ -1,50 +1,47 @@
-import { put } from "@vercel/blob";
-import { NextResponse } from "next/server";
-import { z } from "zod";
+import { put } from '@vercel/blob';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
-import { auth } from "@/app/(auth)/auth";
+import { auth } from '@/app/(auth)/auth';
 
-const FileSchema = z.object({
-  file: z
-    .instanceof(File)
-    .refine((file) => file.size <= 5 * 1024 * 1024, {
-      message: "File size should be less than 5MB",
-    })
-    .refine(
-      (file) =>
-        ["image/jpeg", "image/png", "application/pdf"].includes(file.type),
-      {
-        message: "File type should be JPEG, PNG, or PDF",
-      },
-    ),
+const FilePropertiesSchema = z.object({
+  size: z.number().max(5 * 1024 * 1024, 'File size should be less than 5MB'),
+  type: z.enum(['image/jpeg', 'image/png', 'application/pdf']),
 });
 
 export async function POST(request: Request) {
   const session = await auth();
 
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   if (request.body === null) {
-    return new Response("Request body is empty", { status: 400 });
+    return new Response('Request body is empty', { status: 400 });
   }
 
   try {
     const formData = await request.formData();
-    const file = formData.get("file") as File;
+    const file = formData.get('file') as unknown as {
+      name: string;
+      size: number;
+      type: string;
+      arrayBuffer: () => Promise<ArrayBuffer>;
+    };
 
-    if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    if (!file || typeof file.arrayBuffer !== 'function') {
+      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    const validatedFile = FileSchema.safeParse({ file });
+    const validation = FilePropertiesSchema.safeParse({
+      size: file.size,
+      type: file.type,
+    });
 
-    if (!validatedFile.success) {
-      const errorMessage = validatedFile.error.errors
+    if (!validation.success) {
+      const errorMessage = validation.error.errors
         .map((error) => error.message)
-        .join(", ");
-
+        .join(', ');
       return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
 
@@ -53,17 +50,17 @@ export async function POST(request: Request) {
 
     try {
       const data = await put(`${filename}`, fileBuffer, {
-        access: "public",
+        access: 'public',
       });
 
       return NextResponse.json(data);
     } catch (error) {
-      return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+      return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
     }
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to process request" },
-      { status: 500 },
+      { error: 'Failed to process request' },
+      { status: 500 }
     );
   }
 }
